@@ -1,4 +1,4 @@
-[CustomMessages]
+﻿[CustomMessages]
 ;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
 pl.lcid=1045
 pl.depdownload_msg=Poni?sze aplikacje s? wymagane przed instalacj? aby moc kontynuowa?:%n%n%1%nCzy pobra? je i zainstalowa? teraz?

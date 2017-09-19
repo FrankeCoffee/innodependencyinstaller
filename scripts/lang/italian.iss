@@ -1,4 +1,4 @@
-[CustomMessages]
+﻿[CustomMessages]
 ;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
 it.lcid=1040
 it.depdownload_msg=Le seguenti applicazioni sono necessari per continuare l'installazione:%n%n%1%nScarica ed installare ora?

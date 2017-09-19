@@ -1,4 +1,4 @@
-[CustomMessages]
+﻿[CustomMessages]
 ;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
 en.lcid=1033
 en.depdownload_msg=The following applications are required before setup can continue:%n%n%1%nDownload and install now?

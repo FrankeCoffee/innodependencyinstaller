@@ -1,4 +1,4 @@
-;contribute: http://github.com/stfx/innodependencyinstaller
+﻿;contribute: http://github.com/stfx/innodependencyinstaller
 ;original article: http://codeproject.com/Articles/20868/NET-Framework-1-1-2-0-3-5-Installer-for-InnoSetup
 
 ;comment out product defines to disable installing them

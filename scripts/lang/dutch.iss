@@ -1,4 +1,4 @@
-[CustomMessages]
+﻿[CustomMessages]
 ;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
 nl.lcid=1043
 nl.depdownload_msg=De volgende toepassingen zijn nodig voor de installatie kunt doorgaan:%n%n%1%nDownload en installeer nu?
