@@ -1,4 +1,4 @@
-﻿;contribute: http://github.com/stfx/innodependencyinstaller
+﻿;contribute: http://github.com/domgho/innodependencyinstaller
 ;original article: http://codeproject.com/Articles/20868/NET-Framework-1-1-2-0-3-5-Installer-for-InnoSetup
 
 ;comment out product defines to disable installing them
@@ -13,19 +13,17 @@
 
 #define use_dotnetfx11
 #define use_dotnetfx11lp
-
 #define use_dotnetfx20
 #define use_dotnetfx20lp
-
 #define use_dotnetfx35
 #define use_dotnetfx35lp
 
-#define use_dotnetfx40
 #define use_wic
-
+#define use_dotnetfx40
 #define use_dotnetfx45
 #define use_dotnetfx46
 #define use_dotnetfx47
+#define use_dotnetfx48
 
 #define use_msiproduct
 #define use_vc2005
@@ -54,10 +52,10 @@
 AppName={#MyAppSetupName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppSetupName} {#MyAppVersion}
-AppCopyright=Copyright © 2007-2017 stfx
+AppCopyright=Copyright © 2007-2020 domgho
 VersionInfoVersion={#MyAppVersion}
-VersionInfoCompany=stfx
-AppPublisher=stfx
+VersionInfoCompany=domgho
+AppPublisher=domgho
 ;AppPublisherURL=http://...
 ;AppSupportURL=http://...
 ;AppUpdatesURL=http://...
@@ -69,7 +67,6 @@ OutputDir=bin
 SourceDir=.
 AllowNoIcons=yes
 ;SetupIconFile=MyProgramIcon
-SolidCompression=yes
 
 ;MinVersion default value: "0,5.0 (Windows 2000+) if Unicode Inno Setup, else 4.0,4.0 (Windows 95+)"
 ;MinVersion=0,5.0
@@ -77,18 +74,23 @@ PrivilegesRequired=admin
 ArchitecturesAllowed=x86 x64 ia64
 ArchitecturesInstallIn64BitMode=x64 ia64
 
-;Downloading and installing dependencies will only work if the memo/ready page is enabled (default behaviour)
+; downloading and installing dependencies will only work if the memo/ready page is enabled (default and current behaviour)
 DisableReadyPage=no
 DisableReadyMemo=no
 
-[Languages]
-Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "de"; MessagesFile: "compiler:Languages\German.isl"
-Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
-Name: "it"; MessagesFile: "compiler:Languages\Italian.isl"
-Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
-Name: "pl"; MessagesFile: "compiler:Languages\Polish.isl"
-Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
+; supported languages
+#include "scripts\lang\english.iss"
+#include "scripts\lang\german.iss"
+#include "scripts\lang\french.iss"
+#include "scripts\lang\italian.iss"
+#include "scripts\lang\dutch.iss"
+
+#ifdef UNICODE
+#include "scripts\lang\chinese.iss"
+#include "scripts\lang\polish.iss"
+#include "scripts\lang\russian.iss"
+#include "scripts\lang\japanese.iss"
+#endif
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -109,11 +111,12 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppSetupName}"
 Filename: "{app}\MyProgram.exe"; Description: "{cm:LaunchProgram,{#MyAppSetupName}}"; Flags: nowait postinstall skipifsilent
 
 [CustomMessages]
-win_sp_title=Windows %1 Service Pack %2
-
+DependenciesDir=MyProgramDependencies
+WindowsServicePack=Windows %1 Service Pack %2
 
 ; shared code for installing the products
 #include "scripts\products.iss"
+
 ; helper functions
 #include "scripts\products\stringversion.iss"
 #include "scripts\products\winversion.iss"
@@ -188,6 +191,10 @@ win_sp_title=Windows %1 Service Pack %2
 #include "scripts\products\dotnetfx47.iss"
 #endif
 
+#ifdef use_dotnetfx48
+#include "scripts\products\dotnetfx48.iss"
+#endif
+
 #ifdef use_wic
 #include "scripts\products\wic.iss"
 #endif
@@ -250,16 +257,17 @@ begin
 #endif
 
 #ifdef use_msi20
-	msi20('2.0'); // min allowed version is 2.0
+	msi20('2.0'); // install if version < 2.0
 #endif
 #ifdef use_msi31
-	msi31('3.1'); // min allowed version is 3.1
+	msi31('3.1'); // install if version < 3.1
 #endif
 #ifdef use_msi45
-	msi45('4.5'); // min allowed version is 4.5
+	msi45('4.5'); // install if version < 4.5
 #endif
+
 #ifdef use_ie6
-	ie6('5.0.2919'); // min allowed version is 5.0.2919
+	ie6('5.0.2919'); // install if version < 5.0.2919
 #endif
 
 #ifdef use_dotnetfx11
@@ -274,11 +282,11 @@ begin
 #ifdef use_dotnetfx20
 	// check if .netfx 2.0 can be installed on this OS
 	if not minwinspversion(5, 0, 3) then begin
-		msgbox(fmtmessage(custommessage('depinstall_missing'), [fmtmessage(custommessage('win_sp_title'), ['2000', '3'])]), mberror, mb_ok);
+		MsgBox(FmtMessage(CustomMessage('depinstall_missing'), [FmtMessage(CustomMessage('WindowsServicePack'), ['2000', '3'])]), mbError, MB_OK);
 		exit;
 	end;
 	if not minwinspversion(5, 1, 2) then begin
-		msgbox(fmtmessage(custommessage('depinstall_missing'), [fmtmessage(custommessage('win_sp_title'), ['XP', '2'])]), mberror, mb_ok);
+		MsgBox(FmtMessage(CustomMessage('depinstall_missing'), [FmtMessage(CustomMessage('WindowsServicePack'), ['XP', '2'])]), mbError, MB_OK);
 		exit;
 	end;
 
@@ -325,39 +333,40 @@ begin
 #endif
 
 #ifdef use_dotnetfx45
-    dotnetfx45(50); // min allowed version is 4.5.0
+	dotnetfx45(50); // install if version < 4.5.0
 #endif
-
 #ifdef use_dotnetfx46
-    dotnetfx46(50); // min allowed version is 4.5.0
+	dotnetfx46(60); // install if version < 4.6.0
 #endif
-
 #ifdef use_dotnetfx47
-    dotnetfx47(50); // min allowed version is 4.5.0
+	dotnetfx47(70); // install if version < 4.7.0
+#endif
+#ifdef use_dotnetfx48
+	dotnetfx48(80); // install if version < 4.8.0
 #endif
 
 #ifdef use_vc2005
-	vcredist2005('6'); // min allowed version is 6.0
+	vcredist2005('6'); // install if version < 6.0
 #endif
 #ifdef use_vc2008
-	vcredist2008('9'); // min allowed version is 9.0
+	vcredist2008('9'); // install if version < 9.0
 #endif
 #ifdef use_vc2010
-	vcredist2010('10'); // min allowed version is 10.0
+	vcredist2010('10'); // install if version < 10.0
 #endif
 #ifdef use_vc2012
-	vcredist2012('11'); // min allowed version is 11.0
+	vcredist2012('11'); // install if version < 11.0
 #endif
 #ifdef use_vc2013
 	//SetForceX86(true); // force 32-bit install of next products
-	vcredist2013('12'); // min allowed version is 12.0
+	vcredist2013('12'); // install if version < 12.0
 	//SetForceX86(false); // disable forced 32-bit install again
 #endif
 #ifdef use_vc2015
-	vcredist2015('14'); // min allowed version is 14.0
+	vcredist2015('14'); // install if version < 14.0
 #endif
 #ifdef use_vc2017
-	vcredist2017('14'); // min allowed version is 14.0
+	vcredist2017('14.1'); // install if version < 14.1
 #endif
 
 #ifdef use_directxruntime
@@ -367,10 +376,10 @@ begin
 #endif
 
 #ifdef use_mdac28
-	mdac28('2.7'); // min allowed version is 2.7
+	mdac28('2.8'); // install if version < 2.8
 #endif
 #ifdef use_jet4sp8
-	jet4sp8('4.0.8015'); // min allowed version is 4.0.8015
+	jet4sp8('4.0.8015'); // install if version < 4.0.8015
 #endif
 
 #ifdef use_sqlcompact35sp2

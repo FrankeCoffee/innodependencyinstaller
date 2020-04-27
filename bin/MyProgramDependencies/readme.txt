@@ -1,4 +1,4 @@
-You can put the renamed setup files of the dependencies in this folder so that they will be installed from the drive instead of being downloaded. You have to rename them like below...
+﻿You can put the renamed setup files of the dependencies in this folder so that they will be installed from the drive instead of being downloaded. You have to rename them like below...
 
 Supported dependency names:
 
@@ -19,6 +19,8 @@ Supported dependency names:
 |   dotNetFx40_Full_setup.exe
 |   dotnetfx45.exe
 |   dotnetfx46.exe
+|   dotnetfx47.exe
+|   dotnetfx48.exe
 |   ie6.exe
 |   jet4sp8.exe
 |   kb835732.exe
